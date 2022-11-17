@@ -9,12 +9,27 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import com.example.android.politicalpreparedness.R
+import com.example.android.politicalpreparedness.*
 import com.example.android.politicalpreparedness.database.ElectionDatabase
 import com.example.android.politicalpreparedness.databinding.FragmentVoterInfoBinding
 import com.google.android.material.snackbar.Snackbar
 
 class VoterInfoFragment : Fragment() {
+
+    private val viewModel: VoterInfoViewModel by lazy {
+        val context = requireNotNull(this.context) {
+            "You can only access the viewModel after onViewCreated()"
+        }
+        ViewModelProvider(
+            this,
+            VoterInfoViewModelFactory(
+                ElectionDatabase.getInstance(requireContext()).electionDao,
+                null,
+                null,
+                null
+            )
+        ).get(VoterInfoViewModel::class.java)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -25,21 +40,11 @@ class VoterInfoFragment : Fragment() {
         val electionId = VoterInfoFragmentArgs.fromBundle(requireArguments()).argElectionId
         val division = VoterInfoFragmentArgs.fromBundle(requireArguments()).argDivision
 
-        //TODO get user location
-        var state = "DC"
-        if (division.state.isNotBlank()) {
-            state = division.state
-        }
+        initializeLocationClient()
 
-        val viewModel = ViewModelProvider(
-            this,
-            VoterInfoViewModelFactory(
-                ElectionDatabase.getInstance(requireContext()).electionDao,
-                electionId,
-                division.country,
-                state
-            )
-        ).get(VoterInfoViewModel::class.java)
+        viewModel.electionId = electionId
+        viewModel.country = division.country
+        viewModel.state = division.state
 
         val binding: FragmentVoterInfoBinding =
             DataBindingUtil.inflate(inflater, R.layout.fragment_voter_info, container, false)
@@ -84,6 +89,18 @@ class VoterInfoFragment : Fragment() {
         binding.followButton.setOnClickListener {
             viewModel.toggleFollowElection()
         }
+
+        if (!viewModel.state.isNullOrEmpty()) {
+            viewModel.refreshVoterInfo()
+        } else {
+            if (checkLocationPermissions()) {
+                getLocation { address ->
+                    viewModel.state = address.state
+                    viewModel.refreshVoterInfo()
+                }
+            }
+        }
+
         return binding.root
     }
 
@@ -93,6 +110,18 @@ class VoterInfoFragment : Fragment() {
             Uri.parse(url)
         )
         startActivity(intent)
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        onRequestPermissionResultForLocation(requestCode, grantResults) { address ->
+            viewModel.state = address.state
+            viewModel.refreshVoterInfo()
+        }
     }
 
 }

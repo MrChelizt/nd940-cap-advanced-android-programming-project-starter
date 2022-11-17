@@ -20,7 +20,6 @@ fun fetchImage(view: ImageView, src: String?) {
     }
 }
 
-//TODO use this instead of manual setting
 @BindingAdapter("stateValue")
 fun Spinner.setNewValue(value: String?) {
     val adapter = toTypedAdapter<String>(this.adapter as ArrayAdapter<*>)

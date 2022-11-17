@@ -20,7 +20,6 @@ class ElectionsViewModel(private val dataSource: ElectionDatabase) : ViewModel()
         get() = _savedElections
 
     init {
-        //TODO deferred
         viewModelScope.launch {
             _upcomingElections.value = CivicsApi.retrofitService.getElections().await().elections
             _savedElections.value = dataSource.electionDao.getElections()

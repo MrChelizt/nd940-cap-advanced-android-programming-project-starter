@@ -11,10 +11,10 @@ import com.example.android.politicalpreparedness.network.models.VoterInfoRespons
 import kotlinx.coroutines.launch
 
 class VoterInfoViewModel(
-    private val dataSource: ElectionDao,
-    private val electionId: Int,
-    private val country: String,
-    private val state: String
+    var dataSource: ElectionDao,
+    var electionId: Int?,
+    var country: String?,
+    var state: String?
 ) : ViewModel() {
 
     private val _voterInfo = MutableLiveData<VoterInfoResponse>()
@@ -25,17 +25,24 @@ class VoterInfoViewModel(
     val followState: LiveData<FollowState>
         get() = _followState
 
-    //TODO defer
     init {
+        refreshVoterInfo()
+    }
+
+    fun refreshVoterInfo() {
         viewModelScope.launch {
-            val election: Election? = dataSource.getElectionById(electionId)
-            _followState.value = if (election == null) {
-                FollowState.FOLLOW
-            } else {
-                FollowState.UNFOLLOW
+            if (state?.isNotBlank() == true) {
+                val election: Election? = dataSource.getElectionById(electionId!!)
+                _followState.value = if (election == null) {
+                    FollowState.FOLLOW
+                } else {
+                    FollowState.UNFOLLOW
+                }
+                _voterInfo.value =
+                    CivicsApi.retrofitService.getVoterInfo(electionId!!, "$country,$state").await()
             }
-            _voterInfo.value = CivicsApi.retrofitService.getVoterInfo(electionId, "$country,$state").await()
         }
+
     }
 
     fun toggleFollowElection() {
@@ -44,7 +51,7 @@ class VoterInfoViewModel(
                 dataSource.saveElection(_voterInfo.value!!.election)
                 _followState.value = FollowState.UNFOLLOW
             } else {
-                dataSource.deleteElectionById(electionId)
+                dataSource.deleteElectionById(electionId!!)
                 _followState.value = FollowState.FOLLOW
             }
         }

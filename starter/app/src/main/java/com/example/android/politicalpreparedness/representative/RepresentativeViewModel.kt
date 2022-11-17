@@ -21,7 +21,6 @@ class RepresentativeViewModel : ViewModel() {
     val representatives: LiveData<List<Representative>>
         get() = _representatives
 
-    //TODO defer
     fun fetchRepresentatives() {
         viewModelScope.launch {
             refreshRepresentatives()

@@ -6,9 +6,9 @@ import com.example.android.politicalpreparedness.database.ElectionDao
 
 class VoterInfoViewModelFactory(
     private val dataSource: ElectionDao,
-    private val electionId: Int,
-    private val country: String,
-    private val state: String
+    private val electionId: Int?,
+    private val country: String?,
+    private val state: String?
 ): ViewModelProvider.Factory {
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(VoterInfoViewModel::class.java)) {
