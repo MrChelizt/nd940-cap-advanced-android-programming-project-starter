@@ -9,7 +9,6 @@ import com.example.android.politicalpreparedness.network.CivicsApi
 import com.example.android.politicalpreparedness.network.models.Election
 import kotlinx.coroutines.launch
 
-//TODO: Construct ViewModel and provide election datasource
 class ElectionsViewModel(private val dataSource: ElectionDatabase) : ViewModel() {
 
     private val _upcomingElections = MutableLiveData<List<Election>>()
@@ -21,12 +20,17 @@ class ElectionsViewModel(private val dataSource: ElectionDatabase) : ViewModel()
         get() = _savedElections
 
     init {
+        //TODO deferred
         viewModelScope.launch {
             _upcomingElections.value = CivicsApi.retrofitService.getElections().elections
             _savedElections.value = dataSource.electionDao.getElections()
         }
     }
 
-    //TODO: Create functions to navigate to saved or upcoming election voter info
+    fun refreshSavedElections() {
+        viewModelScope.launch {
+            _savedElections.value = dataSource.electionDao.getElections()
+        }
+    }
 
 }

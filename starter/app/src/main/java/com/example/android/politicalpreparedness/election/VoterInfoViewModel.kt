@@ -1,21 +1,54 @@
 package com.example.android.politicalpreparedness.election
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.android.politicalpreparedness.database.ElectionDao
+import com.example.android.politicalpreparedness.network.CivicsApi
+import com.example.android.politicalpreparedness.network.models.Election
+import com.example.android.politicalpreparedness.network.models.VoterInfoResponse
+import kotlinx.coroutines.launch
 
-class VoterInfoViewModel(private val dataSource: ElectionDao) : ViewModel() {
+class VoterInfoViewModel(
+    private val dataSource: ElectionDao,
+    private val electionId: Int,
+    private val country: String,
+    private val state: String
+) : ViewModel() {
 
-    //TODO: Add live data to hold voter info
+    private val _voterInfo = MutableLiveData<VoterInfoResponse>()
+    val voterInfo: LiveData<VoterInfoResponse>
+        get() = _voterInfo
 
-    //TODO: Add var and methods to populate voter info
+    private val _followState = MutableLiveData<FollowState>()
+    val followState: LiveData<FollowState>
+        get() = _followState
 
-    //TODO: Add var and methods to support loading URLs
+    //TODO defer
+    init {
+        viewModelScope.launch {
+            val election: Election? = dataSource.getElectionById(electionId)
+            _followState.value = if (election == null) {
+                FollowState.FOLLOW
+            } else {
+                FollowState.UNFOLLOW
+            }
+            _voterInfo.value = CivicsApi.retrofitService.getVoterInfo(electionId, "$country,$state")
+        }
+    }
 
-    //TODO: Add var and methods to save and remove elections to local database
-    //TODO: cont'd -- Populate initial state of save button to reflect proper action based on election saved status
+    fun toggleFollowElection() {
+        viewModelScope.launch {
+            if (_followState.value === FollowState.FOLLOW) {
+                dataSource.saveElection(_voterInfo.value!!.election)
+                _followState.value = FollowState.UNFOLLOW
+            } else {
+                dataSource.deleteElectionById(electionId)
+                _followState.value = FollowState.FOLLOW
+            }
+        }
+    }
 
-    /**
-     * Hint: The saved state can be accomplished in multiple ways. It is directly related to how elections are saved/removed from the database.
-     */
 
 }

@@ -24,27 +24,27 @@
             android:id="@+id/upcomingButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/default_margin"
+            android:layout_margin="@dimen/default_margin"
             android:padding="@dimen/default_padding"
             android:background="@color/colorPrimaryDark"
             android:text="@string/upcoming_elections"
             android:textColor="@color/white"
             app:layout_constraintBottom_toTopOf="@+id/representativeButton"
-            app:layout_constraintEnd_toEndOf="@+id/electionsImageView"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="@+id/electionsImageView" />
+            app:layout_constraintStart_toStartOf="parent" />
 
         <Button
             android:id="@+id/representativeButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/default_margin"
+            android:layout_margin="@dimen/default_margin"
             android:padding="@dimen/default_padding"
             android:background="@color/colorPrimaryDark"
             android:text="@string/find_my_representatives"
             android:textColor="@color/white"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="@+id/upcomingButton"
-            app:layout_constraintStart_toStartOf="@+id/upcomingButton" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
