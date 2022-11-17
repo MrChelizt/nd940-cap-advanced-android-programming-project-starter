@@ -14,6 +14,7 @@ import com.example.android.politicalpreparedness.*
 import com.example.android.politicalpreparedness.databinding.FragmentRepresentativeBinding
 import com.example.android.politicalpreparedness.representative.adapter.RepresentativeListAdapter
 import com.example.android.politicalpreparedness.representative.adapter.setNewValue
+import com.google.android.material.snackbar.Snackbar
 
 class RepresentativeFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
@@ -55,7 +56,16 @@ class RepresentativeFragment : Fragment(), AdapterView.OnItemSelectedListener {
         }
         binding.buttonSearch.setOnClickListener {
             hideKeyboard()
-            viewModel.fetchRepresentatives()
+            if (viewModel.validateAddressInfo()) {
+                viewModel.fetchRepresentatives()
+            } else {
+                Snackbar.make(
+                    requireView(),
+                    this.getString(viewModel.showSnackbarInt.value!!),
+                    Snackbar.LENGTH_LONG
+                ).show()
+            }
+
         }
 
         binding.buttonLocation.setOnClickListener {
@@ -89,7 +99,6 @@ class RepresentativeFragment : Fragment(), AdapterView.OnItemSelectedListener {
         viewModel.state.value = adapterView?.selectedItem as String
     }
 
-    //TODO check this if we can use bind adapter instead of this
     override fun onNothingSelected(p0: AdapterView<*>?) {
         viewModel.state.value = null
     }

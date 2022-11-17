@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.android.politicalpreparedness.R
 import com.example.android.politicalpreparedness.network.CivicsApi
 import com.example.android.politicalpreparedness.network.models.Address
 import com.example.android.politicalpreparedness.representative.model.Representative
@@ -16,6 +17,7 @@ class RepresentativeViewModel : ViewModel() {
     val city = MutableLiveData<String>()
     val state = MutableLiveData<String>()
     val zip = MutableLiveData<String>()
+    val showSnackbarInt = MutableLiveData<Int>()
 
     private val _representatives = MutableLiveData<List<Representative>>()
     val representatives: LiveData<List<Representative>>
@@ -44,7 +46,6 @@ class RepresentativeViewModel : ViewModel() {
     }
 
     private fun getAddressInfo(): Address {
-        validateAddressInfo()
         return Address(
             addressLine1.value!!,
             addressLine2.value,
@@ -54,8 +55,19 @@ class RepresentativeViewModel : ViewModel() {
         )
     }
 
-    private fun validateAddressInfo(){
-        //TODO validate address is null or not except line 2
+    fun validateAddressInfo(): Boolean {
+        if (addressLine1.value.isNullOrEmpty()) {
+            showSnackbarInt.value = R.string.error_address_line_1_required
+        } else if (city.value.isNullOrEmpty()) {
+            showSnackbarInt.value = R.string.error_city_required
+        } else if (state.value.isNullOrEmpty()) {
+            showSnackbarInt.value = R.string.error_state_required
+        } else if (zip.value.isNullOrEmpty()) {
+            showSnackbarInt.value = R.string.error_zip_required
+        } else {
+            return true
+        }
+        return false
     }
 
 }

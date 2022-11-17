@@ -33,5 +33,10 @@
     <string name="error_permission_denied_explanation">You need to grant location permission in order to use current location</string>
     <string name="error_location_required">Location services must be enabled to use current location</string>
 
+    <string name="error_address_line_1_required">Address Line 1 field cannot be empty</string>
+    <string name="error_state_required">State field cannot be empty</string>
+    <string name="error_city_required">City field cannot be empty</string>
+    <string name="error_zip_required">Zip field cannot be empty</string>
+
 
 </resources>
