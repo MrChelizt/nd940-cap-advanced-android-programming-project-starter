@@ -24,11 +24,16 @@ class RepresentativeViewModel : ViewModel() {
     //TODO defer
     fun fetchRepresentatives() {
         viewModelScope.launch {
-            val address: Address = getAddressInfo()
-            val (offices, officials) = CivicsApi.retrofitService.getRepresentatives(address.toFormattedString())
-            _representatives.value =
-                offices.flatMap { office -> office.getRepresentatives(officials) }
+            refreshRepresentatives()
         }
+    }
+
+    private suspend fun refreshRepresentatives() {
+        val address: Address = getAddressInfo()
+        val (offices, officials) = CivicsApi.retrofitService.getRepresentatives(address.toFormattedString())
+            .await()
+        _representatives.value =
+            offices.flatMap { office -> office.getRepresentatives(officials) }
     }
 
     fun setAddressInfo(address: Address) {

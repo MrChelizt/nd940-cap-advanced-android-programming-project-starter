@@ -34,7 +34,7 @@ class VoterInfoViewModel(
             } else {
                 FollowState.UNFOLLOW
             }
-            _voterInfo.value = CivicsApi.retrofitService.getVoterInfo(electionId, "$country,$state")
+            _voterInfo.value = CivicsApi.retrofitService.getVoterInfo(electionId, "$country,$state").await()
         }
     }
 
