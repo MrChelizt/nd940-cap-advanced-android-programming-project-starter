@@ -14,9 +14,18 @@ import com.example.android.politicalpreparedness.*
 import com.example.android.politicalpreparedness.databinding.FragmentRepresentativeBinding
 import com.example.android.politicalpreparedness.representative.adapter.RepresentativeListAdapter
 import com.example.android.politicalpreparedness.representative.adapter.setNewValue
+import com.example.android.politicalpreparedness.representative.model.Representative
 import com.google.android.material.snackbar.Snackbar
+import java.util.ArrayList
 
 class RepresentativeFragment : Fragment(), AdapterView.OnItemSelectedListener {
+
+    companion object {
+        private const val MOTION_LAYOUT_STATE = "motion_layout_state"
+        private const val REPRESENTATIVE_RECYCLER_DATA_STATE = "representative_recycler_data_state"
+        private const val REPRESENTATIVE_RECYCLER_SCROLL_STATE =
+            "representative_recycler_scroll_state"
+    }
 
     private lateinit var viewModel: RepresentativeViewModel
     private lateinit var binding: FragmentRepresentativeBinding
@@ -65,7 +74,6 @@ class RepresentativeFragment : Fragment(), AdapterView.OnItemSelectedListener {
                     Snackbar.LENGTH_LONG
                 ).show()
             }
-
         }
 
         binding.buttonLocation.setOnClickListener {
@@ -78,6 +86,28 @@ class RepresentativeFragment : Fragment(), AdapterView.OnItemSelectedListener {
             }
         }
 
+        if (savedInstanceState != null) {
+            binding.representativeMotionLayout.transitionToState(
+                savedInstanceState.getInt(
+                    MOTION_LAYOUT_STATE
+                )
+            )
+
+            if (!savedInstanceState.getParcelableArrayList<Representative>(
+                    REPRESENTATIVE_RECYCLER_DATA_STATE
+                ).isNullOrEmpty()
+            ) {
+                representativeListAdapter.submitList(
+                    savedInstanceState.getParcelableArrayList(
+                        REPRESENTATIVE_RECYCLER_DATA_STATE
+                    )
+                )
+            }
+
+            binding.representativesRecyclerView.layoutManager?.scrollToPosition(savedInstanceState.getInt(
+                REPRESENTATIVE_RECYCLER_SCROLL_STATE))
+
+        }
         return binding.root
     }
 
@@ -121,4 +151,20 @@ class RepresentativeFragment : Fragment(), AdapterView.OnItemSelectedListener {
         imm.hideSoftInputFromWindow(view!!.windowToken, 0)
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+
+        val currentMotionLayoutState = binding.representativeMotionLayout.currentState
+        outState.putInt(MOTION_LAYOUT_STATE, currentMotionLayoutState)
+
+        val recyclerViewData =
+            (binding.representativesRecyclerView.adapter as RepresentativeListAdapter).representatives
+        outState.putParcelableArrayList(
+            REPRESENTATIVE_RECYCLER_DATA_STATE,
+            ArrayList<Representative>(recyclerViewData)
+        )
+
+        val recyclerViewScrollState = binding.representativesRecyclerView.scrollState
+        outState.putInt(REPRESENTATIVE_RECYCLER_SCROLL_STATE, recyclerViewScrollState)
+    }
 }
