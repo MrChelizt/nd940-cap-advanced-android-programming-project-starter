@@ -97,15 +97,17 @@ class RepresentativeFragment : Fragment(), AdapterView.OnItemSelectedListener {
                     REPRESENTATIVE_RECYCLER_DATA_STATE
                 ).isNullOrEmpty()
             ) {
-                representativeListAdapter.submitList(
-                    savedInstanceState.getParcelableArrayList(
+                representativeListAdapter.representatives =
+                    savedInstanceState.getParcelableArrayList<Representative>(
                         REPRESENTATIVE_RECYCLER_DATA_STATE
-                    )
-                )
+                    ) as List<Representative>
             }
 
-            binding.representativesRecyclerView.layoutManager?.scrollToPosition(savedInstanceState.getInt(
-                REPRESENTATIVE_RECYCLER_SCROLL_STATE))
+            binding.representativesRecyclerView.layoutManager?.scrollToPosition(
+                savedInstanceState.getInt(
+                    REPRESENTATIVE_RECYCLER_SCROLL_STATE
+                )
+            )
 
         }
         return binding.root
